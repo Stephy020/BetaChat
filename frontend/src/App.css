@@ -11,14 +11,25 @@ html{
     scroll-behavior: smooth;
 }
 
-.container{
+.home__container{
     width: var(--container-width-lg);
-    margin:0 auto;
+    display: grid;
+    grid-template-columns: 30% 60%;
+    
 }
+
+.message__container{
+
+} 
+
 
 /*======+++++++++MEDIA QUERIES (MEDIUM DEVICES)++++===========*/
 
 @media  screen and (max-width: 1024px) {
+    .home__container{
+        width: var(--container-width-md);
+        grid-template-columns: 1fr 1fr;
+    }
     .container{
         width: var(--container-width-md);
     }
@@ -32,26 +43,34 @@ html{
 }
 /*======+++++++++MEDIA QUERIES (SMALL DEVICES)++++===========*/
 
-@media  screen and (max-width: 600px) {
-    .container{
-        width: var(--container-width-sm);
+@media  screen and (max-width: 640px) {
+
+    .home__container{
+        width: 90%;
+        height: 95vh;
+        grid-template-columns: 1fr ;
+        overflow: auto;
+
     }
 
     div.message__container{
-        display: none;
-        width: 100%;
-        border: none;
-        border-radius:2rem ;
-    }
+        display:none;
+    } 
 
     div.sidebar__container{
-       
-        border: none;
-    }
-    
-    section >h2 {
-        margin-bottom: 2rem;
+        border-right: none;
         
     }
+
+   
+
+    div.sidebar-active{
+        display: none;
+    }
+
+    ::-webkit-scrollbar {
+       display: none;
+    }
+
 }
 

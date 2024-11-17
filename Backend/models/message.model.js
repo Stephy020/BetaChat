@@ -20,7 +20,7 @@ const messageSchema = new mongoose.Schema({
     },
 
     // created at and updated at 
-},{timeStamps: true});
+},{timestamps: true});
 
 const Message = mongoose.model("Message", messageSchema);
 
