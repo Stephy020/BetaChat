@@ -1,30 +1,32 @@
 {
   "name": "chat-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "BetaChat application",
+  "main": "Backend/server.js",
+  "type": "module",
   "scripts": {
     "server": "nodemon Backend/server.js",
     "start": "node Backend/server.js",
-    "build": "npm install &&  npm install --prefix frontend && npm run build --prefix frontend"
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
   },
-  "type": "module",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.3.2",
+    "node-fetch": "^3.3.2",
     "react-icons": "^5.1.0",
     "react-router-dom": "^6.23.0",
     "sass": "^1.81.0",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "vite": "^5.2.0"
   }
 }
