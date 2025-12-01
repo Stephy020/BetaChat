@@ -49,13 +49,13 @@ const useGetConversation = () => {
         );
       }
 
-      // Legacy system notification (only if supported)
-      if (typeof Notification !== 'undefined' && document.visibilityState === "hidden" && Notification.permission === "granted") {
-        new Notification("New Message", {
-          body: newMessage.message || "You have a new message!",
-          icon: "/vite.svg",
-          tag: "new-message"
-        });
+      // Flash document title as a fallback
+      if (document.visibilityState === "hidden") {
+        const originalTitle = document.title;
+        document.title = `(1) ${senderName}`;
+        setTimeout(() => {
+          document.title = originalTitle;
+        }, 3000);
       }
 
       setConversations((prevConversations) => {

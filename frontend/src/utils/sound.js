@@ -28,6 +28,15 @@ class SoundManager {
         sound.play().catch(error => {
             console.log("Notification sound failed:", error);
         });
+
+        // Vibrate for 200ms if supported (Android/Mobile)
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+            try {
+                navigator.vibrate(200);
+            } catch (e) {
+                console.log("Vibration failed:", e);
+            }
+        }
     }
 }
 

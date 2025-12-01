@@ -50,6 +50,15 @@ const usePolling = () => {
                             icon: "/vite.svg"
                         });
                     }
+
+                    // Flash document title as a fallback
+                    if (document.visibilityState === "hidden") {
+                        const originalTitle = document.title;
+                        document.title = "(1) New Message!";
+                        setTimeout(() => {
+                            document.title = originalTitle;
+                        }, 3000);
+                    }
                 }
             } catch (error) {
                 console.error("Polling error:", error);
