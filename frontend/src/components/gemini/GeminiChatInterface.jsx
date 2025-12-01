@@ -224,7 +224,7 @@ const GeminiChatInterface = () => {
                         <input
                             type='text'
                             className='border text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 text-white pr-20'
-                            placeholder='Ask Stephy...'
+                            placeholder='Ask ABONIKI...'
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             disabled={loading}
