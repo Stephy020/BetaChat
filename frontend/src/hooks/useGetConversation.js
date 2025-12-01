@@ -1,43 +1,35 @@
-import React from 'react'
-import { useEffect } from 'react';
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useSocketContext } from '../context/SocketContext';
 import useConversation from '../zustand/useConversation';
-import notification from "../assets/sound/noti.mp3";
+import notification from '../assets/sounds/notification.mp3';
+import { useNotification } from '../context/NotificationContext';
 
 const useGetConversation = () => {
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
   const { socket } = useSocketContext();
   const { selectedConversation } = useConversation();
+  const { showNotification } = useNotification();
 
   useEffect(() => {
     const getConversations = async () => {
       setLoading(true);
       try {
-        const res = await fetch("/api/users");
+        const res = await fetch('/api/users');
         const data = await res.json();
-
         if (data.error) {
           throw new Error(data.error);
         }
-
         setConversations(data);
       } catch (error) {
         toast.error(error.message);
-
       } finally {
         setLoading(false);
       }
     }
 
     getConversations();
-
-    // Request notification permission
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
   }, [])
 
   // Listen for new messages and update conversation list in real-time
@@ -49,8 +41,17 @@ const useGetConversation = () => {
       const sound = new Audio(notification);
       sound.play().catch(e => console.log("Error playing sound:", e));
 
-      // Trigger system notification if app is in background
-      if (document.visibilityState === "hidden" && Notification.permission === "granted") {
+      // Show in-app notification (works on ALL devices!)
+      const senderName = conversations.find(c => c._id === newMessage.senderId)?.fullName || "Someone";
+      if (showNotification) {
+        showNotification(
+          `New message from ${senderName}`,
+          newMessage.message || "You have a new message!"
+        );
+      }
+
+      // Legacy system notification (only if supported)
+      if (typeof Notification !== 'undefined' && document.visibilityState === "hidden" && Notification.permission === "granted") {
         new Notification("New Message", {
           body: newMessage.message || "You have a new message!",
           icon: "/vite.svg",
@@ -88,7 +89,7 @@ const useGetConversation = () => {
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
-  }, [socket, selectedConversation]);
+  }, [socket, selectedConversation, conversations, showNotification]);
 
   // Clear unread count when conversation is selected
   useEffect(() => {
@@ -130,7 +131,6 @@ const useGetConversation = () => {
   }, [socket, socket?.connected]);
 
   return { loading, conversations }
-
 }
 
-export default useGetConversation
+export default useGetConversation;

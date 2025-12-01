@@ -34,8 +34,8 @@ const usePolling = () => {
                     // Update messages state
                     setMessages([...messages, ...data.messages]);
 
-                    // Trigger notification if background
-                    if (document.visibilityState === "hidden" && Notification.permission === "granted") {
+                    // Trigger notification if background (only if supported)
+                    if (typeof Notification !== 'undefined' && document.visibilityState === "hidden" && Notification.permission === "granted") {
                         new Notification("New Message", {
                             body: "You have new messages",
                             icon: "/vite.svg"
