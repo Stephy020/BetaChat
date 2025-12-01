@@ -106,7 +106,7 @@ const GeminiChatInterface = () => {
                                     setMessages([{ role: 'model', text: `Hello! I am ABONIKI AI. How can I help you today?` }]);
                                 }
                             }}
-                            className='text-sm text-white hover:text-red-300 hidden md:block'
+                            className='text-sm text-white hover:text-red-300'
                             title='Clear chat history'
                         >
                             Clear

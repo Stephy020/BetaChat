@@ -142,27 +142,42 @@ export const updateTypingStatus = async (req, res) => {
         }
 
         if (isTyping) {
-            // Add or update typing status
-            const existingIndex = conversation.typingUsers.findIndex(
-                tu => tu.userId.toString() === userId.toString()
+            // Try to update existing entry first (atomic operation)
+            const updated = await Conversation.findOneAndUpdate(
+                { 
+                    _id: conversation._id, 
+                    "typingUsers.userId": userId 
+                },
+                { 
+                    $set: { "typingUsers.$.timestamp": new Date() } 
+                }
             );
 
-            if (existingIndex >= 0) {
-                conversation.typingUsers[existingIndex].timestamp = new Date();
-            } else {
-                conversation.typingUsers.push({
-                    userId,
-                    timestamp: new Date()
-                });
+            // If not found (user wasn't typing before), push new entry
+            if (!updated) {
+                await Conversation.findByIdAndUpdate(
+                    conversation._id,
+                    { 
+                        $push: { 
+                            typingUsers: { 
+                                userId, 
+                                timestamp: new Date() 
+                            } 
+                        } 
+                    }
+                );
             }
         } else {
-            // Remove typing status
-            conversation.typingUsers = conversation.typingUsers.filter(
-                tu => tu.userId.toString() !== userId.toString()
+            // Remove user from typing list (atomic operation)
+            await Conversation.findByIdAndUpdate(
+                conversation._id,
+                { 
+                    $pull: { 
+                        typingUsers: { userId: userId } 
+                    } 
+                }
             );
         }
-
-        await conversation.save();
 
         res.status(200).json({ success: true });
 

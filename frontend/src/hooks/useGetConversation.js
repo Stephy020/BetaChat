@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useSocketContext } from '../context/SocketContext';
 import useConversation from '../zustand/useConversation';
-import notification from '../assets/sound/notification.mp3';
+import { soundManager } from '../utils/sound';
 import { useNotification } from '../context/NotificationContext';
 
 const useGetConversation = () => {
@@ -38,8 +38,7 @@ const useGetConversation = () => {
 
     const handleNewMessage = (newMessage) => {
       newMessage.shouldShake = true;
-      const sound = new Audio(notification);
-      sound.play().catch(e => console.log("Error playing sound:", e));
+      soundManager.playNotification();
 
       // Show in-app notification (works on ALL devices!)
       const senderName = conversations.find(c => c._id === newMessage.senderId)?.fullName || "Someone";

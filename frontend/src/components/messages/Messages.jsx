@@ -16,12 +16,23 @@ const Messages = () => {
   usePolling(); // Fallback for when socket is disconnected
 
   const lastMessageRef = useRef();
+  const bottomRef = useRef();
 
+  // Scroll to bottom on new message
   useEffect(() => {
     setTimeout(() => {
       lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100)
   }, [messages])
+
+  // Scroll to bottom when typing starts
+  useEffect(() => {
+    if (typingUsers && typingUsers.length > 0) {
+      setTimeout(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  }, [typingUsers]);
 
   return (
     <div className='messages flex-1 px-4 h-30 overflow-auto '>
@@ -37,6 +48,7 @@ const Messages = () => {
       )}
 
       <TypingIndicator typingUsers={typingUsers} />
+      <div ref={bottomRef} />
     </div>
   )
 }

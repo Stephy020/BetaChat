@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { IoNotifications, IoNotificationsOff } from "react-icons/io5";
 import toast from 'react-hot-toast';
-import notificationSound from '../../assets/sound/notification.mp3';
+import { soundManager } from '../../utils/sound';
 
 const NotificationButton = () => {
     const [permission, setPermission] = useState(Notification.permission);
@@ -27,12 +27,12 @@ const NotificationButton = () => {
             if (result === 'granted') {
                 toast.success("Notifications enabled!");
 
-                // "Unlock" audio context for mobile browsers by playing a silent/short sound on user interaction
-                const audio = new Audio(notificationSound);
-                audio.volume = 0.5;
-                audio.play().catch(e => console.log("Audio unlock failed:", e));
+                // Initialize sound manager (unlock audio context)
+                soundManager.initialize();
 
                 // Send a test notification
+                soundManager.playNotification();
+
                 new Notification("Notifications Enabled", {
                     body: "You will now receive messages in the background",
                     icon: "/vite.svg"
@@ -46,9 +46,6 @@ const NotificationButton = () => {
         }
     };
 
-    // Don't show button if already granted or denied (unless we want to allow re-checking, but usually browser handles that)
-    // Actually, showing it when 'default' is the most important. 
-    // If 'denied', clicking it won't do much in most browsers, but we can show a toast.
     if (permission === 'granted') return null;
 
     return (

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSocketContext } from '../context/SocketContext';
 import useConversation from '../zustand/useConversation';
-import notification from "../assets/sound/noti.mp3";
+import { soundManager } from '../utils/sound';
 import { useNotification } from '../context/NotificationContext';
 
 const usePolling = () => {
@@ -30,8 +30,7 @@ const usePolling = () => {
 
                 if (data.messages && data.messages.length > 0) {
                     // Play sound for new messages
-                    const sound = new Audio(notification);
-                    sound.play().catch(e => console.log("Error playing sound:", e));
+                    soundManager.playNotification();
 
                     // Update messages state
                     setMessages([...messages, ...data.messages]);

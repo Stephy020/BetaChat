@@ -1,75 +1,75 @@
-:root{
-    
-    --container-width-lg:75%;
-    --container-width-md:86%;
-    --container-width-sm:90%;
+:root {
 
-    --transition:all 400ms ease;
+    --container-width-lg: 75%;
+    --container-width-md: 86%;
+    --container-width-sm: 90%;
+
+    --transition: all 400ms ease;
 
 }
-html{
+
+html {
     scroll-behavior: smooth;
 }
 
-.home__container{
+.home__container {
     width: var(--container-width-lg);
     display: grid;
     grid-template-columns: 30% 60%;
-    
+
 }
 
-.message__container{
-
-} 
+.message__container {}
 
 
 /*======+++++++++MEDIA QUERIES (MEDIUM DEVICES)++++===========*/
 
-@media  screen and (max-width: 1024px) {
-    .home__container{
+@media screen and (max-width: 1024px) {
+    .home__container {
         width: var(--container-width-md);
         grid-template-columns: 1fr 1fr;
     }
-    .container{
+
+    .container {
         width: var(--container-width-md);
     }
 
 
 
-    section{
+    section {
         margin-top: 6rem;
 
     }
 }
+
 /*======+++++++++MEDIA QUERIES (SMALL DEVICES)++++===========*/
 
-@media  screen and (max-width: 640px) {
+@media screen and (max-width: 640px) {
 
-    .home__container{
+    .home__container {
         width: 90%;
-        height: 95vh;
-        grid-template-columns: 1fr ;
-        overflow: auto;
-
+        height: 100dvh;
+        grid-template-columns: 1fr;
+        overflow: hidden;
     }
 
-    div.message__container{
-        display:none;
-    } 
+    div.message__container {
+        display: none;
+    }
 
-    div.sidebar__container{
+    div.sidebar__container {
         border-right: none;
-        
+
     }
 
-   
 
-    div.sidebar-active{
+
+    div.sidebar-active {
         display: none;
     }
 
     ::-webkit-scrollbar {
-       display: none;
+        display: none;
     }
 
 }
@@ -79,6 +79,7 @@ html{
         transform: translate(-50%, -100%);
         opacity: 0;
     }
+
     to {
         transform: translate(-50%, 0);
         opacity: 1;
@@ -88,5 +89,3 @@ html{
 .animate-slide-down {
     animation: slide-down 0.3s ease-out;
 }
-
-
