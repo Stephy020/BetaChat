@@ -26,9 +26,15 @@ const Conversation = ({ conversation, emoji, lastIdx }) => {
                         <p className='font-bold text-gray-200'>{conversation.fullName}</p>
                         <span className='text-xl'>{emoji}</span>
                     </div>
-                    {conversation.username && (
-                        <span className='text-gray-400 text-xs'>@{conversation.username}</span>
-                    )}
+
+                    <div className='flex justify-between items-center'>
+                        <p className={`text-xs ${conversation.unreadCount > 0 ? 'text-white font-bold' : 'text-gray-400'} truncate max-w-[150px]`}>
+                            {conversation.lastMessage?.message || "Start a conversation"}
+                        </p>
+                        {conversation.unreadCount > 0 && (
+                            <span className='badge badge-sm badge-primary'>{conversation.unreadCount}</span>
+                        )}
+                    </div>
                 </div>
             </div>
 

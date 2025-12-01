@@ -21,7 +21,7 @@ export const chatWithGemini = async (req, res) => {
         const parts = [];
         
         if (message) {
-            parts.push({ text: message + test });
+            parts.push({ text: test==="Hello"||"hello"||"hi"||"Hi"||"hey"||"Hey"||/^[A-Za-z0-9!@#$%^&*()_+\[\]{}|,.?/~\-]+$/ ? message : message + test });
         }
         
         if (image) {

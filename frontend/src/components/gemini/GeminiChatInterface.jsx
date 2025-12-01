@@ -19,7 +19,7 @@ const GeminiChatInterface = () => {
                 console.error('Error loading chat history:', e);
             }
         }
-        return [{ role: 'model', text: `Hello! I am Aboniki AI. How can I help you today?` }];
+        return [{ role: 'model', text: `Hello! I am ABONIKI AI. How can I help you today?` }];
     });
 
     const [loading, setLoading] = useState(false);
@@ -84,7 +84,7 @@ const GeminiChatInterface = () => {
             setMessages(prev => [...prev, aiMessage]);
 
         } catch (error) {
-            console.error("Error sending message to Aboniki AI:", error);
+            console.error("Error sending message to ABONIKI AI:", error);
             setMessages(prev => [...prev, { role: 'model', text: "Sorry, I encountered an error. Please try again." }]);
         } finally {
             setLoading(false);
@@ -97,13 +97,13 @@ const GeminiChatInterface = () => {
                 <div className='flex justify-between items-center'>
                     <div className=''>
                         <span className='label-text'>To:</span>
-                        <span className='text-gray-900 font-bold '> Aboniki AI</span>
+                        <span className='text-gray-900 font-bold '> ABONIKI AI</span>
                     </div>
                     <div className='flex items-center gap-2' >
                         <button
                             onClick={() => {
                                 if (window.confirm('Clear all chat history?')) {
-                                    setMessages([{ role: 'model', text: `Hello! I am Aboniki AI. How can I help you today?` }]);
+                                    setMessages([{ role: 'model', text: `Hello! I am ABONIKI AI. How can I help you today?` }]);
                                 }
                             }}
                             className='text-sm text-white hover:text-red-300 hidden md:block'
@@ -160,7 +160,7 @@ const GeminiChatInterface = () => {
                                             );
                                         },
                                         p({ children }) {
-                                            return <p className="mb-2 last:mb-0">{children}</p>;
+                                            return <div className="mb-2 last:mb-0">{children}</div>;
                                         },
                                         ul({ children }) {
                                             return <ul className="list-disc ml-4 mb-2">{children}</ul>;

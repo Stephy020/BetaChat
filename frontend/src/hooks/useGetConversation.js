@@ -3,11 +3,14 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useSocketContext } from '../context/SocketContext';
+import useConversation from '../zustand/useConversation';
+import notification from "../assets/sound/noti.mp3";
 
 const useGetConversation = () => {
   const [loading, setLoading] = useState(false);
   const [conversations, setConversations] = useState([]);
   const { socket } = useSocketContext();
+  const { selectedConversation } = useConversation();
 
   useEffect(() => {
     const getConversations = async () => {
@@ -30,6 +33,11 @@ const useGetConversation = () => {
     }
 
     getConversations();
+
+    // Request notification permission
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
   }, [])
 
   // Listen for new messages and update conversation list in real-time
@@ -37,13 +45,30 @@ const useGetConversation = () => {
     if (!socket) return;
 
     const handleNewMessage = (newMessage) => {
+      newMessage.shouldShake = true;
+      const sound = new Audio(notification);
+      sound.play().catch(e => console.log("Error playing sound:", e));
+
+      // Trigger system notification if app is in background
+      if (document.visibilityState === "hidden" && Notification.permission === "granted") {
+        new Notification("New Message", {
+          body: newMessage.message || "You have a new message!",
+          icon: "/vite.svg",
+          tag: "new-message"
+        });
+      }
+
       setConversations((prevConversations) => {
         // Find the conversation with the sender or receiver
         const updatedConversations = prevConversations.map(conv => {
           if (conv._id === newMessage.senderId || conv._id === newMessage.recieverId) {
+            const isSender = newMessage.senderId === conv._id;
+            const isSelected = selectedConversation?._id === conv._id;
+
             return {
               ...conv,
-              lastMessage: newMessage
+              lastMessage: newMessage,
+              unreadCount: isSender && !isSelected ? (conv.unreadCount || 0) + 1 : conv.unreadCount
             };
           }
           return conv;
@@ -63,7 +88,19 @@ const useGetConversation = () => {
     return () => {
       socket.off("newMessage", handleNewMessage);
     };
-  }, [socket]);
+  }, [socket, selectedConversation]);
+
+  // Clear unread count when conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      setConversations(prev => prev.map(conv => {
+        if (conv._id === selectedConversation._id) {
+          return { ...conv, unreadCount: 0 };
+        }
+        return conv;
+      }));
+    }
+  }, [selectedConversation]);
 
   // Polling fallback when socket is disconnected
   useEffect(() => {

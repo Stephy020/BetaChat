@@ -18,7 +18,28 @@ export const getUsersForSideBar = async (req, res) => {
                 options: { sort: { createdAt: -1 }, limit: 1 }
             });
 
-        // 2. Extract the *other* participant from each conversation with last message
+        // 2. Fetch unread message counts for the current user
+        const unreadStats = await Message.aggregate([
+            {
+                $match: {
+                    recieverId: loggedInUserId,
+                    deliveryStatus: { $ne: 'read' }
+                }
+            },
+            {
+                $group: {
+                    _id: "$senderId",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const unreadMap = unreadStats.reduce((acc, curr) => {
+            acc[curr._id.toString()] = curr.count;
+            return acc;
+        }, {});
+
+        // 3. Extract the *other* participant from each conversation with last message and unread count
         const sortedUsers = [];
         const seenUserIds = new Set();
 
@@ -26,10 +47,11 @@ export const getUsersForSideBar = async (req, res) => {
             conversation.participants.forEach(participant => {
                 if (participant._id.toString() !== loggedInUserId.toString()) {
                     if (!seenUserIds.has(participant._id.toString())) {
-                        // Add last message to the user object
+                        // Add last message and unread count to the user object
                         const userWithMessage = {
                             ...participant.toObject(),
-                            lastMessage: conversation.messages[0] || null
+                            lastMessage: conversation.messages[0] || null,
+                            unreadCount: unreadMap[participant._id.toString()] || 0
                         };
                         sortedUsers.push(userWithMessage);
                         seenUserIds.add(participant._id.toString());
@@ -38,7 +60,7 @@ export const getUsersForSideBar = async (req, res) => {
             });
         });
 
-        // 3. Fetch remaining users who have no conversation yet
+        // 4. Fetch remaining users who have no conversation yet
         const remainingUsers = await User.find({
             _id: {
                 $ne: loggedInUserId,
@@ -46,13 +68,14 @@ export const getUsersForSideBar = async (req, res) => {
             }
         }).select("-password");
 
-        // Add null lastMessage for users with no conversation
+        // Add null lastMessage and 0 unreadCount for users with no conversation
         const remainingWithNull = remainingUsers.map(user => ({
             ...user.toObject(),
-            lastMessage: null
+            lastMessage: null,
+            unreadCount: 0
         }));
 
-        // 4. Combine sorted users with remaining users
+        // 5. Combine sorted users with remaining users
         const finalUsers = [...sortedUsers, ...remainingWithNull];
 
         res.status(200).json(finalUsers);

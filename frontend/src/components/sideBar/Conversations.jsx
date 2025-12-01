@@ -5,7 +5,6 @@ import Conversation from './Conversation'
 
 const Conversations = () => {
   const { loading, conversations } = useGetConversation();
-  console.log("CONVERSATIONS", conversations);
 
   // Memoize the assignment of emojis to ensure consistency across re-renders
   // Assuming each conversation has a 'lastMessage' with a 'timestamp'
@@ -17,9 +16,6 @@ const Conversations = () => {
       }))
       .sort((a, b) => b.conversation - a.conversation); // Sort by descending timestamp    
   }, [conversations]);
-
-  console.log("con", sortedConversations);
-
 
   return (
     <div className='conversations py-2 flex flex-col overflow-auto'>
