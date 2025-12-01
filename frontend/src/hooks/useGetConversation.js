@@ -49,13 +49,22 @@ const useGetConversation = () => {
         );
       }
 
+      // Legacy system notification (only if supported)
+      if (typeof Notification !== 'undefined' && document.visibilityState === "hidden" && Notification.permission === "granted") {
+        new Notification("New Message", {
+          body: newMessage.message || "You have a new message!",
+          icon: "/vite.svg",
+          tag: "new-message"
+        });
+      }
+
       // Flash document title as a fallback
       if (document.visibilityState === "hidden") {
-        const originalTitle = document.title;
-        document.title = `(1) ${senderName}`;
-        setTimeout(() => {
-          document.title = originalTitle;
-        }, 3000);
+          const originalTitle = document.title;
+          document.title = `(1) ${senderName}`;
+          setTimeout(() => {
+              document.title = originalTitle;
+          }, 3000);
       }
 
       setConversations((prevConversations) => {
@@ -83,53 +92,53 @@ const useGetConversation = () => {
       });
     };
 
-    socket.on("newMessage", handleNewMessage);
+socket.on("newMessage", handleNewMessage);
 
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-    };
+return () => {
+  socket.off("newMessage", handleNewMessage);
+};
   }, [socket, selectedConversation, conversations, showNotification]);
 
-  // Clear unread count when conversation is selected
-  useEffect(() => {
-    if (selectedConversation) {
-      setConversations(prev => prev.map(conv => {
-        if (conv._id === selectedConversation._id) {
-          return { ...conv, unreadCount: 0 };
-        }
-        return conv;
-      }));
-    }
-  }, [selectedConversation]);
-
-  // Polling fallback when socket is disconnected
-  useEffect(() => {
-    if (!socket || socket.connected) return;
-
-    console.log("Socket disconnected. Starting conversation list polling...");
-
-    const pollConversations = async () => {
-      try {
-        const res = await fetch("/api/users");
-        const data = await res.json();
-        if (!data.error) {
-          setConversations(data);
-        }
-      } catch (error) {
-        console.error("Conversation polling error:", error);
+// Clear unread count when conversation is selected
+useEffect(() => {
+  if (selectedConversation) {
+    setConversations(prev => prev.map(conv => {
+      if (conv._id === selectedConversation._id) {
+        return { ...conv, unreadCount: 0 };
       }
-    };
+      return conv;
+    }));
+  }
+}, [selectedConversation]);
 
-    // Initial poll
-    pollConversations();
+// Polling fallback when socket is disconnected
+useEffect(() => {
+  if (!socket || socket.connected) return;
 
-    // Poll every 5 seconds
-    const interval = setInterval(pollConversations, 5000);
+  console.log("Socket disconnected. Starting conversation list polling...");
 
-    return () => clearInterval(interval);
-  }, [socket, socket?.connected]);
+  const pollConversations = async () => {
+    try {
+      const res = await fetch("/api/users");
+      const data = await res.json();
+      if (!data.error) {
+        setConversations(data);
+      }
+    } catch (error) {
+      console.error("Conversation polling error:", error);
+    }
+  };
 
-  return { loading, conversations }
+  // Initial poll
+  pollConversations();
+
+  // Poll every 5 seconds
+  const interval = setInterval(pollConversations, 5000);
+
+  return () => clearInterval(interval);
+}, [socket, socket?.connected]);
+
+return { loading, conversations }
 }
 
 export default useGetConversation;
