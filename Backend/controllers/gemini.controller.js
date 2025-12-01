@@ -19,11 +19,19 @@ export const chatWithGemini = async (req, res) => {
 
         // Build parts array - can include both text and image
         const parts = [];
-        
+
         if (message) {
-            parts.push({ text: test==="Hello"||"hello"||"hi"||"Hi"||"hey"||"Hey"||/^[A-Za-z0-9!@#$%^&*()_+\[\]{}|,.?/~\-]+$/ ? message : message + test });
+            // Check if message is a simple greeting or just a letter/short message
+            const simpleGreetings = ["Hello", "hello", "hi", "Hi", "hey", "Hey", "Hola", "hola"];
+            const trimmedMessage = message.trim();
+            const isSimpleGreeting = simpleGreetings.includes(trimmedMessage);
+            const isJustLetter = trimmedMessage.length <= 8; // Single letter or very short (like "ok", "hi")
+
+            parts.push({
+                text: (isSimpleGreeting || isJustLetter) ? message : message + test
+            });
         }
-        
+
         if (image) {
             // Extract mime type and base64 data from data URL
             const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);

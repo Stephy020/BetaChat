@@ -21,23 +21,69 @@ export const SocketContextProvider = ({ children }) => {
                 ? window.location.origin
                 : "http://localhost:5000";
 
+            console.log('[Socket] Connecting to:', socketUrl);
+
             const socket = io(socketUrl, {
                 query: {
                     userId: authUser._id,
                 },
-                transports: ['websocket', 'polling'], // Try WebSocket first, fallback to polling
-                reconnectionAttempts: 5,
+                // Mobile-optimized: polling first for better compatibility, then upgrade to websocket
+                transports: ['polling', 'websocket'],
+                // More aggressive reconnection for mobile networks
+                reconnectionAttempts: 15,
                 reconnectionDelay: 1000,
-                timeout: 10000
+                reconnectionDelayMax: 5000,
+                // Longer timeout for slower mobile connections
+                timeout: 20000,
+                // Important for mobile: allow upgrade from polling to websocket when stable
+                upgrade: true,
+                // Helps with mobile network switches
+                rememberUpgrade: true
             });
 
             setSocket(socket);
 
+            // Connection event handlers
+            socket.on('connect', () => {
+                console.log('[Socket] Connected:', socket.id);
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('[Socket] Connection error:', error.message);
+            });
+
+            socket.on('disconnect', (reason) => {
+                console.log('[Socket] Disconnected:', reason);
+                if (reason === 'io server disconnect') {
+                    // Server disconnected, try to reconnect
+                    socket.connect();
+                }
+            });
+
+            socket.on('reconnect', (attemptNumber) => {
+                console.log('[Socket] Reconnected after', attemptNumber, 'attempts');
+            });
+
+            socket.on('reconnect_attempt', (attemptNumber) => {
+                console.log('[Socket] Reconnection attempt', attemptNumber);
+            });
+
+            socket.on('reconnect_error', (error) => {
+                console.error('[Socket] Reconnection error:', error.message);
+            });
+
+            socket.on('reconnect_failed', () => {
+                console.error('[Socket] Reconnection failed after all attempts');
+            });
+
             socket.on("getOnlineUsers", (users) => {
                 setOnlineUsers(users);
-            })
+            });
 
-            return () => socket.close();
+            return () => {
+                console.log('[Socket] Cleaning up connection');
+                socket.close();
+            };
         } else {
             if (socket) {
                 socket.close();

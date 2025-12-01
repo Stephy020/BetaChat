@@ -4,9 +4,14 @@ import useListenMessages from '../../hooks/useListenMessages'
 import usePolling from '../../hooks/usePolling'
 import MessageSkeleton from '../skeletons/MessageSkeleton'
 import Message from './Message'
+import TypingIndicator from './TypingIndicator'
+import useTypingIndicator from '../../hooks/useTypingIndicator'
+import useConversation from '../../zustand/useConversation'
 
 const Messages = () => {
   const { messages, loading } = useGetMessages();
+  const { selectedConversation } = useConversation();
+  const { typingUsers } = useTypingIndicator(selectedConversation?._id);
   useListenMessages();
   usePolling(); // Fallback for when socket is disconnected
 
@@ -30,6 +35,8 @@ const Messages = () => {
       {!loading && messages.length === 0 && (
         <p className='text-center '>Send a message to start conversation</p>
       )}
+
+      <TypingIndicator typingUsers={typingUsers} />
     </div>
   )
 }
