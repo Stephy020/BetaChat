@@ -115,17 +115,30 @@ export const pollConversations = async (req, res) => {
 // Update typing status
 export const updateTypingStatus = async (req, res) => {
     try {
-        const { id: conversationId } = req.params;
+        const { id: recipientIdOrConversationId } = req.params;
         const { isTyping } = req.body;
         const userId = req.user._id;
 
-        const conversation = await Conversation.findOne({
-            _id: conversationId,
+        // Try to find conversation - could be by conversation ID or by finding conversation with this user
+        let conversation = await Conversation.findOne({
+            _id: recipientIdOrConversationId,
             participants: { $in: [userId] }
         });
 
+        // If not found by ID, try to find by participants (recipientId is actually a user ID)
         if (!conversation) {
-            return res.status(404).json({ error: "Conversation not found" });
+            conversation = await Conversation.findOne({
+                participants: { $all: [userId, recipientIdOrConversationId] }
+            });
+        }
+
+        // If still not found, create a new conversation
+        if (!conversation) {
+            conversation = await Conversation.create({
+                participants: [userId, recipientIdOrConversationId],
+                messages: [],
+                typingUsers: []
+            });
         }
 
         if (isTyping) {
@@ -162,16 +175,25 @@ export const updateTypingStatus = async (req, res) => {
 // Get typing status
 export const getTypingStatus = async (req, res) => {
     try {
-        const { id: conversationId } = req.params;
+        const { id: recipientIdOrConversationId } = req.params;
         const userId = req.user._id;
 
-        const conversation = await Conversation.findOne({
-            _id: conversationId,
+        // Try to find conversation - could be by conversation ID or by finding conversation with this user
+        let conversation = await Conversation.findOne({
+            _id: recipientIdOrConversationId,
             participants: { $in: [userId] }
         }).populate('typingUsers.userId', 'fullName');
 
+        // If not found by ID, try to find by participants
         if (!conversation) {
-            return res.status(404).json({ error: "Conversation not found" });
+            conversation = await Conversation.findOne({
+                participants: { $all: [userId, recipientIdOrConversationId] }
+            }).populate('typingUsers.userId', 'fullName');
+        }
+
+        if (!conversation) {
+            // No conversation exists yet, return empty typing users
+            return res.status(200).json({ typingUsers: [] });
         }
 
         // Remove stale typing indicators (older than 5 seconds)
@@ -182,7 +204,7 @@ export const getTypingStatus = async (req, res) => {
 
         // Filter out current user from typing list
         const typingUsers = conversation.typingUsers
-            .filter(tu => tu.userId._id.toString() !== userId.toString())
+            .filter(tu => tu.userId && tu.userId._id.toString() !== userId.toString())
             .map(tu => ({
                 userId: tu.userId._id,
                 fullName: tu.userId.fullName

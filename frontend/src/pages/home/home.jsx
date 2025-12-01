@@ -4,9 +4,9 @@ import SideBar from '../../components/sideBar/SideBar';
 
 const Home = () => {
   return (
-    < div className= 'home__container  sm:h-[450px] md:h-[550px]  rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0'>
-        <SideBar />
-        <MessageContainer/> 
+    <div className='home__container sm:h-[450px] md:h-[550px] rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-0'>
+      <SideBar />
+      <MessageContainer />
     </div>
   )
 }
