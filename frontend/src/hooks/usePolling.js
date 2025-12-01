@@ -2,10 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useSocketContext } from '../context/SocketContext';
 import useConversation from '../zustand/useConversation';
 import notification from "../assets/sound/noti.mp3";
+import { useNotification } from '../context/NotificationContext';
 
 const usePolling = () => {
     const { socket } = useSocketContext();
     const { messages, setMessages, selectedConversation } = useConversation();
+    const { showNotification } = useNotification();
     const intervalRef = useRef(null);
 
     useEffect(() => {
@@ -29,12 +31,20 @@ const usePolling = () => {
                 if (data.messages && data.messages.length > 0) {
                     // Play sound for new messages
                     const sound = new Audio(notification);
-                    sound.play();
+                    sound.play().catch(e => console.log("Error playing sound:", e));
 
                     // Update messages state
                     setMessages([...messages, ...data.messages]);
 
-                    // Trigger notification if background (only if supported)
+                    // Show in-app notification
+                    if (showNotification) {
+                        showNotification(
+                            "New Message",
+                            "You have new messages"
+                        );
+                    }
+
+                    // Trigger system notification if background (only if supported)
                     if (typeof Notification !== 'undefined' && document.visibilityState === "hidden" && Notification.permission === "granted") {
                         new Notification("New Message", {
                             body: "You have new messages",
