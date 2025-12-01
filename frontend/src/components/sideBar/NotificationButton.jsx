@@ -4,7 +4,12 @@ import toast from 'react-hot-toast';
 import { soundManager } from '../../utils/sound';
 
 const NotificationButton = () => {
-    const [permission, setPermission] = useState(Notification.permission);
+    const [permission, setPermission] = useState(() => {
+        if (typeof Notification !== 'undefined') {
+            return Notification.permission;
+        }
+        return 'default'; // Default to 'default' (or 'denied') if not supported
+    });
 
     useEffect(() => {
         // Update state if permission changes externally
