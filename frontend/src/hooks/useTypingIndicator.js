@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useAuthContext } from '../context/AuthContext';
-import usePolling from './usePolling';
 
 const useTypingIndicator = (conversationId) => {
     const [typingUsers, setTypingUsers] = useState([]);
@@ -25,7 +24,16 @@ const useTypingIndicator = (conversationId) => {
     }, [conversationId]);
 
     // Poll every 2 seconds for typing status
-    usePolling(fetchTypingStatus, 2000, !!conversationId, [conversationId]);
+    useEffect(() => {
+        if (!conversationId) return;
+
+        // Initial fetch
+        fetchTypingStatus();
+
+        const intervalId = setInterval(fetchTypingStatus, 2000);
+
+        return () => clearInterval(intervalId);
+    }, [conversationId, fetchTypingStatus]);
 
     // Function to report current user is typing
     const reportTyping = useCallback(async (typing) => {
