@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useSocketContext } from '../context/SocketContext';
 import useConversation from '../zustand/useConversation';
-import notification from '../assets/sounds/notification.mp3';
+import notification from '../assets/sound/notification.mp3';
 import { useNotification } from '../context/NotificationContext';
 
 const useGetConversation = () => {
